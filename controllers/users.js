@@ -24,7 +24,13 @@ const postUser = (req, res) => {
 const getUsersId = (req, res) => {
   User.findById(req.params.userId)
     .orFail(() => new Error('Not found'))
-    .then((user) => res.status(200).send(user))
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Пользователя не существует' });
+        return;
+      }
+      res.status(200).send(user);
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
@@ -38,7 +44,13 @@ const patchUserMe = (req, res) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
-    .then((user) => res.status(201).send(user))
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Пользователя не существует' });
+        return;
+      }
+      res.status(200).send(user);
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
@@ -52,7 +64,7 @@ const patchAvatarMe = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((user) => res.status(201).send(user))
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
