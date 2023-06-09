@@ -2,10 +2,7 @@ const mongoose = require('mongoose');
 const Card = require('../models/cards');
 
 const getCards = (req, res) => {
-  const { name, link } = req.body;
-  const owner = req.user._id;
-
-  Card.find({ name, link, owner })
+  Card.find({})
     .then((cards) => res.status(200).send(cards))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
@@ -25,9 +22,8 @@ const postCards = (req, res) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
-      }
+        return;
+      } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -38,16 +34,14 @@ const deleteCards = (req, res) => {
     .then((cards) => {
       if (!cards) {
         res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
-      } else {
-        res.status(200).send(cards);
-      }
+        return;
+      } res.status(200).send(cards);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Переданы некорректные данные для постановки' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
-      }
+        return;
+      } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -62,9 +56,8 @@ const postLikeCards = (req, res) => {
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
-      }
+        return;
+      } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -78,9 +71,8 @@ const deleteLikeCards = (req, res) => {
     .catch((err) => {
       if (err.message === 'Not found') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
-      }
+        return;
+      } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
