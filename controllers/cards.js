@@ -1,11 +1,11 @@
-// const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 const Card = require('../models/cards');
 
 const getCards = (req, res) => {
   Card.find({ })
     .then((cards) => res.status(201).send(cards))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
