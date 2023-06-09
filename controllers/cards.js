@@ -18,7 +18,7 @@ const postCards = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((cards) => res.status(201).send(cards))
+    .then((cards) => res.status(200).send({ data: cards }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
@@ -34,7 +34,7 @@ const deleteCards = (req, res) => {
   Card.findByIdAndRemove({ _id })
     .then((cards) => res.status(200).send(cards))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Переданы некорректные данные для постановки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
@@ -53,11 +53,11 @@ const postLikeCards = (req, res) => {
         res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
-      res.status(200).send(cards);
+      res.status(200).send({ data: cards });
     })
 
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
@@ -69,14 +69,14 @@ const deleteLikeCards = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true },
+    { new: true, runValidators: true },
   )
     .then((cards) => {
       if (!cards) {
         res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
-      res.status(200).send(cards);
+      res.status(200).send({ data: cards });
     })
     .catch((err) => {
       if (err.message === 'Not found') {

@@ -23,17 +23,16 @@ const postUser = (req, res) => {
 
 const getUsersId = (req, res) => {
   User.findById(req.params.userId)
-    .orFail(() => new Error('Not found'))
     .then((user) => {
       if (!user) {
-        res.status(400).send({ message: 'Пользователя не существует' });
+        res.status(404).send({ message: 'Пользователя не существует' });
         return;
       }
       res.status(200).send(user);
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
         return;
       }
       res.status(500).send({ message: 'Ошибка по умолчанию' });
@@ -41,9 +40,6 @@ const getUsersId = (req, res) => {
 };
 
 const patchUserMe = (req, res) => {
-  // const newName = req.body.name;
-  // const newAbout = req.body.about;
-  // const id = req.user._id;
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
