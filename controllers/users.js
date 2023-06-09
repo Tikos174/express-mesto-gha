@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 const mongoose = require('mongoose');
 const User = require('../models/user');
 
@@ -27,7 +26,7 @@ const getUsersId = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователя не существует' });
+        res.status(400).send({ message: 'Пользователя не существует' });
         return;
       }
       res.status(200).send(user);
@@ -42,14 +41,15 @@ const getUsersId = (req, res) => {
 };
 
 const patchUserMe = (req, res) => {
-  const newName = req.body.name;
-  const newAbout = req.body.about;
-  const id = req.user._id;
+  // const newName = req.body.name;
+  // const newAbout = req.body.about;
+  // const id = req.user._id;
+  const { name, about } = req.body;
 
-  User.findByIdAndUpdate(id, { name: newName, about: newAbout }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        res.status(404).send({ message: 'Пользователя не существует' });
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден' });
         return;
       }
       res.status(200).send(user);
@@ -67,10 +67,16 @@ const patchAvatarMe = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
-    .then((user) => res.status(200).send(user))
+    .then((user) => {
+      if (!user) {
+        res.status(404).send({ message: 'Пользователь с указанным _id не найден.' });
+        return;
+      }
+      res.status(200).send(user);
+    })
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля' });
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара' });
         return;
       }
       res.status(500).send({ message: 'Ошибка по умолчанию' });
