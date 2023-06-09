@@ -12,10 +12,10 @@ const postUser = (req, res) => {
   User.create({ name, about, avatar })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err.message === 'ValidationError') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -25,10 +25,12 @@ const getUsersId = (req, res) => {
     .orFail(() => new Error('Not found'))
     .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+      } else if (err.message === 'Not Found') {
+        res.status(404).send({ message: 'Пользователь по указанному id не найден' });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -39,10 +41,12 @@ const patchUserMe = (req, res) => {
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
     .then((user) => res.status(201).send(user))
     .catch((err) => {
-      if (err.message === 'Not found') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+      if (err.name === 'ValidationError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+      } else if (err.message === 'Not Found') {
+        res.status(404).send({ message: 'Пользователь по указанному id не найден' });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
@@ -56,7 +60,7 @@ const patchAvatarMe = (req, res) => {
       if (err.message === 'Not found') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
+        res.status(500).send({ message: 'На сервере произошла ошибка' });
       }
     });
 };
