@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 const mongoose = require('mongoose');
 const User = require('../models/user');
 
@@ -41,9 +42,11 @@ const getUsersId = (req, res) => {
 };
 
 const patchUserMe = (req, res) => {
-  const { name, about } = req.body;
+  const newName = req.body.name;
+  const newAbout = req.body.about;
+  const id = req.user._id;
 
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true })
+  User.findByIdAndUpdate(id, { name: newName, about: newAbout }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         res.status(404).send({ message: 'Пользователя не существует' });
