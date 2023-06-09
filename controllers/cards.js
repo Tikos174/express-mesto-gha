@@ -51,7 +51,13 @@ const postLikeCards = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((cards) => res.status(200).send({ data: cards }))
+    .then((cards) => {
+      if (!cards) {
+        res.status(404).send({ message: 'Карточка не найдена' });
+        return;
+      }
+      res.status(200).send({ data: cards });
+    })
 
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
@@ -67,9 +73,15 @@ const deleteLikeCards = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true, runValidators: true },
   )
-    .then((cards) => res.status(200).send({ data: cards }))
+    .then((cards) => {
+      if (!cards) {
+        res.status(404).send({ message: 'Карточка не найдена' });
+        return;
+      }
+      res.status(200).send({ data: cards });
+    })
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err instanceof mongoose.Error.CastError) {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
         return;
       } res.status(500).send({ message: 'Ошибка по умолчанию' });

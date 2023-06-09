@@ -20,8 +20,8 @@ app.use((req, res, next) => {
 });
 
 app.use(router);
-
-app.listen(3000, () => {
-  // eslint-disable-next-line no-console
-  console.log('Работают');
+app.use((req, res) => {
+  res.status(404).send({ message: 'Неправильный адрес' });
 });
+
+app.listen(3000);
