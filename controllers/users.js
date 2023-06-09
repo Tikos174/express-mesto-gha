@@ -33,7 +33,7 @@ const getUsersId = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
+        res.status(404).send({ message: 'Пользователь по указанному _id не найден.' });
         return;
       }
       res.status(500).send({ message: 'Ошибка по умолчанию' });

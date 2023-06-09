@@ -3,7 +3,7 @@ const Card = require('../models/cards');
 
 const getCards = (req, res) => {
   Card.find({ })
-    .then((cards) => res.status(201).send(cards))
+    .then((cards) => res.status(200).send({ data: cards }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
@@ -20,7 +20,7 @@ const postCards = (req, res) => {
   Card.create({ name, link, owner })
     .then((cards) => res.status(201).send(cards))
     .catch((err) => {
-      if (err.message === 'Not found') {
+      if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
@@ -32,10 +32,10 @@ const deleteCards = (req, res) => {
   const _id = req.params.cardId;
 
   Card.findByIdAndRemove({ _id })
-    .then((cards) => res.status(201).send(cards))
+    .then((cards) => res.status(200).send(cards))
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
@@ -48,10 +48,17 @@ const postLikeCards = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true },
   )
-    .then((cards) => res.status(201).send(cards))
+    .then((cards) => {
+      if (!cards) {
+        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        return;
+      }
+      res.status(200).send(cards);
+    })
+
     .catch((err) => {
       if (err.message === 'Not found') {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
       } else {
         res.status(500).send({ message: 'Ошибка по умолчанию' });
       }
@@ -64,7 +71,13 @@ const deleteLikeCards = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true },
   )
-    .then((cards) => res.status(201).send(cards))
+    .then((cards) => {
+      if (!cards) {
+        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        return;
+      }
+      res.status(200).send(cards);
+    })
     .catch((err) => {
       if (err.message === 'Not found') {
         res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
