@@ -21,7 +21,7 @@ app.use((req, res, next) => {
 
 app.use(router);
 
-app.listen(3001, () => {
+app.listen(3000, () => {
   // eslint-disable-next-line no-console
   console.log('Работают');
 });
