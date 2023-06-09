@@ -21,7 +21,7 @@ const postCards = (req, res) => {
     .then((cards) => res.status(200).send({ data: cards }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
         return;
       } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
@@ -39,7 +39,7 @@ const deleteCards = (req, res) => {
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки' });
+        res.status(400).send({ message: 'Переданы некорректные данные.' });
         return;
       } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
@@ -53,7 +53,7 @@ const postLikeCards = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
       res.status(200).send({ data: cards });
@@ -61,7 +61,7 @@ const postLikeCards = (req, res) => {
 
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректные данные для снятия лайка' });
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
         return;
       } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
@@ -75,14 +75,14 @@ const deleteLikeCards = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        res.status(404).send({ message: 'Карточка не найдена' });
+        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
       res.status(200).send({ data: cards });
     })
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя' });
+        res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
         return;
       } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
