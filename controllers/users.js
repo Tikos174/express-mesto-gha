@@ -27,7 +27,7 @@ const getUsersId = (req, res) => {
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err instanceof mongoose.Error.CastError) {
-        res.status(404).send({ message: 'Переданы некорректный id' });
+        res.status(400).send({ message: 'Пользователь по указанному _id не найден.' });
         return;
       }
       res.status(500).send({ message: 'Ошибка по умолчанию' });
