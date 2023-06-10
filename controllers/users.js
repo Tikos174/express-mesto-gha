@@ -5,9 +5,9 @@ const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send(users))
     .catch(() => res
-      .status(400)
+      .status(500)
       .send({
-        message: 'Переданы некорректные данные при создании пользователя.',
+        message: 'Ошибка по умолчанию.',
       }));
 };
 
@@ -82,7 +82,7 @@ const patchUserMe = (req, res) => {
 const patchAvatarMe = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         res

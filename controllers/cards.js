@@ -18,7 +18,7 @@ const postCards = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((cards) => res.status(200).send({ data: cards }))
+    .then((cards) => res.status(201).send({ data: cards }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
         res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
@@ -71,7 +71,6 @@ const deleteLikeCards = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
-    { new: true, runValidators: true },
   )
     .then((cards) => {
       if (!cards) {

@@ -20,8 +20,5 @@ app.use((req, res, next) => {
 });
 
 app.use(router);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Неправильный адрес' });
-});
 
 app.listen(3000);
