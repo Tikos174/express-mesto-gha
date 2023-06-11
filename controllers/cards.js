@@ -71,6 +71,7 @@ const deleteLikeCards = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
+    { new: true },
   )
     .then((cards) => {
       if (!cards) {
