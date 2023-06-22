@@ -1,24 +1,35 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const router = require('./routes/index');
+const cookieParser = require('cookie-parser');
+const userRouter = require('./routes/users');
+const cardsRoutes = require('./routes/cards');
+const {
+  login,
+  createUser,
+} = require('./controllers/users');
 
-const app = express();
+const auth = require('./middlewares/auth');
 
-// подключаемся к серверу mongo
 mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
   useNewUrlParser: true,
 });
 
+const app = express();
+
+app.use(cookieParser());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '648085ad98e15f7048ce10d0',
-  };
+app.post('/signin', login);
+app.post('/signup', createUser);
 
-  next();
+app.set(auth);
+
+app.use('/users', userRouter);
+app.use('/cards', cardsRoutes);
+
+app.use((req, res) => {
+  res.status(404).send({ message: 'Неправильный адрес' });
 });
-
-app.use(router);
 
 app.listen(3000);
