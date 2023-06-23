@@ -1,29 +1,24 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cards');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
-      } else {
-        res.status(500).send({ message: 'Ошибка по умолчанию' });
-      }
-    });
+    .catch(next);
 };
 
-const postCards = (req, res) => {
+const postCards = (req, res, next) => {
   const { name, link } = req.body;
-  const owner = req.user._id;
+  const ownerId = req.user._id;
 
-  Card.create({ name, link, owner })
+  Card.create({ name, link, owner: ownerId })
     .then((cards) => res.status(201).send({ data: cards }))
     .catch((err) => {
       if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
-        return;
-      } res.status(500).send({ message: 'Ошибка по умолчанию' });
+        next(new Error('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
     });
 };
 

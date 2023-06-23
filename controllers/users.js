@@ -1,22 +1,39 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const jsonWebToken = require('jsonwebtoken');
+const jwtToken = require('jsonwebtoken');
 const User = require('../models/user');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send(users))
-    .catch(() => res.status(500).send({
-      message: 'Ошибка по умолчанию.',
-    }));
+    .catch(next);
 };
 
-const getUserMe = (req, res) => {
+const getUserMe = (req, res, next) => {
   User.findId(req.user._id)
     .then((user) => res.send({ data: user }))
-    .catch(() => res.status(500).send({
-      message: 'Ошибка по умолчанию.',
-    }));
+    .catch(next);
+};
+
+const createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+
+  bcrypt.hash(String(password), 10)
+    .then((hashePassword) => User.create({
+      name, about, avatar, email, password: hashePassword,
+    }))
+    .then((user) => res.status(201).send(user))
+    .catch((err) => {
+      if (err.code === 11000) {
+        next(new Error('Такой email уже зарегистрирован'));
+      } else if (err.code === 'ValidationError') {
+        next(new Error('Переданы некорректные данные'));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const login = (req, res, next) => {
@@ -24,7 +41,9 @@ const login = (req, res, next) => {
 
   return User.findLogin(email, password)
     .then((user) => {
-      const token = jsonWebToken.sign({ _id: user._id }, 'SECRET', { expiresIn: '7d' });
+      const token = jwtToken.sign({
+        _id: user._id,
+      }, 'SECRET', { expiresIn: '7d' });
       res
         .cookie('token', token, {
           maxAge: 3600000,
@@ -35,25 +54,12 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-const createUser = (req, res) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
-
-  bcrypt.hash(password, 10)
-    .then((hashePassword) => User.create({
-      name, about, avatar, email, password: hashePassword,
-    }))
-    .then((user) => res.status(201).send(user))
-    .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при создании пользователя',
-        });
-        return;
-      }
-      res.status(500).send({ message: 'Ошибка по умолчанию' });
-    });
+const logout = (req, res, next) => {
+  User.findOne({ _id: req.user._id })
+    .then(() => {
+      res.clearCookie('token', { httpOnly: true }).send({ data: 'Выход успешно осуществлён.' });
+    })
+    .catch(next);
 };
 
 const getUsersId = (req, res) => {
@@ -135,6 +141,7 @@ const patchAvatarMe = (req, res) => {
 };
 
 module.exports = {
+  logout,
   login,
   getUsers,
   getUsersId,

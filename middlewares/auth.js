@@ -7,10 +7,14 @@ const auth = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'SECRET');
   } catch (err) {
-    next(err);
+    // next(err);
+    return res
+      .status(401)
+      .send({ message: 'Необходима авторизация' });
   }
+
   req.user = payload;
-  next();
+  return next();
 };
 
-module.export = { auth };
+module.exports = auth;
