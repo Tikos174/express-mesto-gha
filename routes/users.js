@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { Joi, celebrate } = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 
 const {
   getUsers,
@@ -9,28 +9,26 @@ const {
   getUserMe,
 } = require('../controllers/users');
 
-const regURL = /(?:https?):\/\/(\w+:?\w*)?(\S+)(:\d+)?(\/|\/([\w#!:.?+=&%!\-/]))?/;
-
 router.get('/', getUsers);
 
 router.get('/me', getUserMe);
 
 router.get('/:userId', celebrate({
   params: Joi.object().keys({
-    userId: Joi.string().length(24).hex().required(),
+    userId: Joi.string().length(24).hex(),
   }),
 }), getUsersId);
 
 router.patch('/me', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    about: Joi.string().min(2).max(30).required(),
+    name: Joi.string().required().min(2).max(30),
+    about: Joi.string().required().min(2).max(30),
   }),
 }), patchUserMe);
 
 router.patch('/me/avatar', celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().pattern(regURL),
+    avatar: Joi.string().required().pattern(/^https?:\/\/[www.]?[\w\-._~:/?#[\]@!$&'()*+,;=%]+\.[\w\-._~:/?#[\]@!$&'()*+,;=%]+#?$/),
   }),
 }), patchAvatarMe);
 

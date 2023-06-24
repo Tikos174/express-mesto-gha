@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cards');
+const IncorrectRequest = require('../utils/incorrectRequest');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -11,14 +12,14 @@ const postCards = (req, res, next) => {
   const { name, link } = req.body;
   const ownerId = req.user._id;
 
-  Card.create({ name, link, owner: ownerId })
-    .then((cards) => res.status(201).send({ data: cards }))
+  return Card.create({ name, link, owner: ownerId })
+    .then((cards) => res.status(201).send(cards))
+    // eslint-disable-next-line consistent-return
     .catch((err) => {
-      if (err instanceof mongoose.Error.ValidationError) {
-        next(new Error('Переданы некорректные данные'));
-      } else {
-        next(err);
+      if (err.name === 'ValidationError') {
+        return next(new IncorrectRequest('Неверный запрос'));
       }
+      next(err);
     });
 };
 
