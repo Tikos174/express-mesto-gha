@@ -26,14 +26,14 @@ const postCards = (req, res, next) => {
 };
 
 const deleteCards = (req, res, next) => {
-  const _id = req.params.cardId;
+  const userId = req.user._id;
 
-  Card.findByIdAndRemove({ _id })
+  Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
         throw new NotFound('Карточка не найдена');
       }
-      if (card.owner.toString() !== _id.toString()) {
+      if (card.owner.toString() !== userId.toString()) {
         throw new ForbiddenError('У вас нет прав на удаление этой карточки');
       }
       return Card.findByIdAndRemove(req.params.cardId)
