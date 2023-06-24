@@ -7,11 +7,10 @@ const userRouter = require('./routes/users');
 const cardsRoutes = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const NotFound = require('./utils/not-found-err');
-const errorHandler = require('./middlewares/errorHandler');
+const NotFound = require('./utils/notFoundErr');
 
 const avatar = /^https?:\/\/[www.]?[\w\-._~:/?#[\]@!$&'()*+,;=%]+\.[\w\-._~:/?#[\]@!$&'()*+,;=%]+#?$/;
-const passwordd = /^[a-zA-z0-9]{8,}$/;
+const password = /^[a-zA-z0-9]{8,}$/;
 
 const app = express();
 
@@ -26,14 +25,14 @@ app.use(express.urlencoded({ extended: true }));
 app.post('/signin', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().pattern(passwordd),
+    password: Joi.string().required().pattern(password),
   }),
 }), login);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().pattern(passwordd),
+    password: Joi.string().required().pattern(password),
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(avatar),
@@ -48,7 +47,5 @@ app.use(auth, (req, res, next) => {
 });
 
 app.use(errors());
-
-app.use(errorHandler);
 
 app.listen(3000);

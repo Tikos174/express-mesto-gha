@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
+const jwtToken = require('jsonwebtoken');
 const User = require('../models/user');
-const NotFound = require('../utils/not-found-err');
+const NotFound = require('../utils/notFoundErr');
 const IncorrectRequest = require('../utils/incorrectRequest');
 const ConflictEmail = require('../utils/conflictEmail');
 
@@ -31,9 +31,9 @@ const createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      const newUser = user.toObject();
-      delete newUser.password;
-      res.status(201).send(newUser);
+      const newAccount = user.toObject();
+      delete newAccount.password;
+      res.status(201).send(newAccount);
     })
     .catch((err) => {
       if (err.code === 11000) {
@@ -50,7 +50,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({
+      const token = jwtToken.sign({
         _id: user._id,
       }, 'SECRET', { expiresIn: '7d' });
       res.cookie('token', token, {
@@ -63,8 +63,7 @@ const login = (req, res, next) => {
 };
 
 const getUsersId = (req, res, next) => {
-  const { userId } = req.params;
-  return User.findById(userId)
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
         throw new NotFound('Нет пользователя с таким id');
@@ -81,15 +80,11 @@ const getUsersId = (req, res, next) => {
 };
 
 const patchUserMe = (req, res, next) => {
-  const userId = req.user._id;
   const { name, about } = req.body;
   return User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { name, about },
-    {
-      new: true,
-      runValidators: true,
-    },
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (!user) {
@@ -106,15 +101,11 @@ const patchUserMe = (req, res, next) => {
 };
 
 const patchAvatarMe = (req, res, next) => {
-  const userId = req.user._id;
   const { avatar } = req.body;
   return User.findByIdAndUpdate(
-    userId,
+    req.user._id,
     { avatar },
-    {
-      new: true,
-      runValidators: true,
-    },
+    { new: true, runValidators: true },
   )
     .then((user) => {
       if (!user) {

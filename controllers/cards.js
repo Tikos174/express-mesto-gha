@@ -1,8 +1,8 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cards');
 const IncorrectRequest = require('../utils/incorrectRequest');
-const NotFound = require('../utils/not-found-err');
-const ForbiddenError = require('../utils/forbidden-err');
+const NotFound = require('../utils/notFoundErr');
+const ForbiddenError = require('../utils/forbiddenErr');
 
 const getCards = (req, res, next) => {
   Card.find({})
