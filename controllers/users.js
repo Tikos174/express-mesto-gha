@@ -22,18 +22,18 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hashePassword(password, 10)
-    .then((hashePassword) => User.create({
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
       name,
       about,
       avatar,
       email,
-      password: hashePassword,
+      password: hash,
     }))
     .then((user) => {
-      const newАccount = user.toObject();
-      delete newАccount.password;
-      res.status(201).send(newАccount);
+      const newUser = user.toObject();
+      delete newUser.password;
+      res.status(201).send(newUser);
     })
     .catch((err) => {
       if (err.code === 11000) {
