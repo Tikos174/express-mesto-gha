@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cards');
 const IncorrectRequest = require('../utils/incorrectRequest');
-const NotFound = require('../utils/not-authorized');
+const NotFound = require('../utils/not-found-err');
 const ForbiddenError = require('../utils/forbidden-err');
 
 const getCards = (req, res, next) => {
@@ -37,7 +37,7 @@ const deleteCards = (req, res, next) => {
         throw new ForbiddenError('У вас нет прав на удаление этой карточки');
       }
       return Card.findByIdAndRemove(req.params.cardId)
-        .then(() => res.send({ data: card }))
+        .then(() => res.status(200).send({ data: card }))
         .catch(next);
     })
     .catch(next);
