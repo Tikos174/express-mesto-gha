@@ -1,27 +1,31 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cards');
-const IncorrectRequest = require('../utils/incorrectRequest');
 const NotFound = require('../utils/notFoundErr');
 const ForbiddenError = require('../utils/forbiddenErr');
 
-const getCards = (req, res, next) => {
+const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch(next);
+    .catch((err) => {
+      if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки' });
+      } else {
+        res.status(500).send({ message: 'Ошибка по умолчанию' });
+      }
+    });
 };
 
-const postCards = (req, res, next) => {
+const postCards = (req, res) => {
   const { name, link } = req.body;
-  const ownerId = req.user._id;
+  const owner = req.user._id;
 
-  return Card.create({ name, link, owner: ownerId })
-    .then((cards) => res.status(201).send(cards))
-    // eslint-disable-next-line consistent-return
+  Card.create({ name, link, owner })
+    .then((cards) => res.status(201).send({ data: cards }))
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new IncorrectRequest('Неверный запрос'));
-      }
-      next(err);
+      if (err instanceof mongoose.Error.ValidationError) {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
+        return;
+      } res.status(500).send({ message: 'Ошибка по умолчанию' });
     });
 };
 
@@ -31,7 +35,7 @@ const deleteCards = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFound('Карточка не найдена');
+        throw new NotFound('Карточка с указанным _id не найдена.');
       }
       if (card.owner.toString() !== userId.toString()) {
         throw new ForbiddenError('У вас нет прав на удаление этой карточки');

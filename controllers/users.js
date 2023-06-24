@@ -67,7 +67,7 @@ const getUsersId = (req, res, next) => {
   return User.findById(userId)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Нет пользователя с таким id');
+        throw new NotFound('Пользователь с данным id не найдет');
       }
       return res.status(200).send(user);
     })
@@ -93,7 +93,7 @@ const patchUserMe = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFound('Нет пользователя с таким id');
+        throw new NotFound('Пользователь с данным id не найдет');
       }
       return res.status(200).send(user);
     })
@@ -118,7 +118,7 @@ const patchAvatarMe = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFound('Нет пользователя с таким id');
+        throw new NotFound('Пользователь с данным id не найдет');
       }
       return res.status(200).send(user);
     })
