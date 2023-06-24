@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const Card = require('../models/cards');
 const IncorrectRequest = require('../utils/incorrectRequest');
+const NotFound = require('../utils/not-authorized');
+const ForbiddenError = require('../utils/forbidden-err');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -23,22 +25,22 @@ const postCards = (req, res, next) => {
     });
 };
 
-const deleteCards = (req, res) => {
+const deleteCards = (req, res, next) => {
   const _id = req.params.cardId;
 
   Card.findByIdAndRemove({ _id })
-    .then((cards) => {
-      if (!cards) {
-        res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
-        return;
-      } res.status(200).send(cards);
+    .then((card) => {
+      if (!card) {
+        throw new NotFound('Карточка не найдена');
+      }
+      if (card.owner.toString() !== _id.toString()) {
+        throw new ForbiddenError('У вас нет прав на удаление этой карточки');
+      }
+      return Card.findByIdAndRemove(req.params.cardId)
+        .then(() => res.send({ data: card }))
+        .catch(next);
     })
-    .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректные данные.' });
-        return;
-      } res.status(500).send({ message: 'Ошибка по умолчанию' });
-    });
+    .catch(next);
 };
 
 const postLikeCards = (req, res) => {

@@ -7,7 +7,7 @@ const ConflictEmail = require('../utils/conflictEmail');
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.status(201).send(users))
+    .then((users) => res.status(200).send(users))
     .catch(next);
 };
 
@@ -62,14 +62,6 @@ const login = (req, res, next) => {
     .catch(next);
 };
 
-const logout = (req, res, next) => {
-  User.findOne({ _id: req.user._id })
-    .then(() => {
-      res.clearCookie('token', { httpOnly: true }).send({ data: 'Выход успешно осуществлён.' });
-    })
-    .catch(next);
-};
-
 const getUsersId = (req, res, next) => {
   const { userId } = req.params;
   return User.findById(userId)
@@ -77,7 +69,7 @@ const getUsersId = (req, res, next) => {
       if (!user) {
         throw new NotFound('Нет пользователя с таким id');
       }
-      return res.status(201).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -139,7 +131,6 @@ const patchAvatarMe = (req, res, next) => {
 };
 
 module.exports = {
-  logout,
   login,
   getUsers,
   getUsersId,
