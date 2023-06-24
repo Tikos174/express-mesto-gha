@@ -8,6 +8,7 @@ const cardsRoutes = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFound = require('./utils/notFoundErr');
+const errorHandler = require('./middlewares/errorHandler');
 
 const avatar = /^https?:\/\/[www.]?[\w\-._~:/?#[\]@!$&'()*+,;=%]+\.[\w\-._~:/?#[\]@!$&'()*+,;=%]+#?$/;
 const password = /^[a-zA-z0-9]{8,}$/;
@@ -47,5 +48,7 @@ app.use(auth, (req, res, next) => {
 });
 
 app.use(errors());
+
+app.use(errorHandler);
 
 app.listen(3000);
