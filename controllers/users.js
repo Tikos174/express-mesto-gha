@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const jwtToken = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const NotFound = require('../utils/notFoundErr');
 const IncorrectRequest = require('../utils/incorrectRequest');
@@ -22,13 +22,13 @@ const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
-  bcrypt.hashePassword(password, 10)
-    .then((hashePassword) => User.create({
+  bcrypt.hash(password, 10)
+    .then((hash) => User.create({
       name,
       about,
       avatar,
       email,
-      password: hashePassword,
+      password: hash,
     }))
     .then((user) => {
       const newUser = user.toObject();
@@ -50,7 +50,7 @@ const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwtToken.sign({
+      const token = jwt.sign({
         _id: user._id,
       }, 'SECRET', { expiresIn: '7d' });
       res.cookie('token', token, {
@@ -63,7 +63,8 @@ const login = (req, res, next) => {
 };
 
 const getUsersId = (req, res, next) => {
-  User.findById(req.params.userId)
+  const { userId } = req.params;
+  return User.findById(userId)
     .then((user) => {
       if (!user) {
         throw new NotFound('Нет пользователя с таким id');
@@ -80,11 +81,15 @@ const getUsersId = (req, res, next) => {
 };
 
 const patchUserMe = (req, res, next) => {
+  const userId = req.user._id;
   const { name, about } = req.body;
   return User.findByIdAndUpdate(
-    req.user._id,
+    userId,
     { name, about },
-    { new: true, runValidators: true },
+    {
+      new: true,
+      runValidators: true,
+    },
   )
     .then((user) => {
       if (!user) {
@@ -101,11 +106,15 @@ const patchUserMe = (req, res, next) => {
 };
 
 const patchAvatarMe = (req, res, next) => {
+  const userId = req.user._id;
   const { avatar } = req.body;
   return User.findByIdAndUpdate(
-    req.user._id,
+    userId,
     { avatar },
-    { new: true, runValidators: true },
+    {
+      new: true,
+      runValidators: true,
+    },
   )
     .then((user) => {
       if (!user) {
