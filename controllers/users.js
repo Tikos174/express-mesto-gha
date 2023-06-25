@@ -93,13 +93,15 @@ const patchUserMe = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь с данным id не найдет');
+        next(new NotFound('Пользователь с данным id не найдет'));
+        return;
       }
-      return res.status(200).send(user);
+      res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new IncorrectRequest('Произошла ошибка валидации');
+        next(new IncorrectRequest('Произошла ошибка валидации'));
+        return;
       }
       next(err);
     });
@@ -118,13 +120,14 @@ const patchAvatarMe = (req, res, next) => {
   )
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь с данным id не найдет');
-      }
-      return res.status(200).send(user);
+        next(new NotFound('Пользователь с данным id не найдет'));
+        return;
+      } res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new IncorrectRequest('Неверный запрос');
+        next(new IncorrectRequest('Неверный запрос'));
+        return;
       }
       next(err);
     });

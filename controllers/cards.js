@@ -1,4 +1,3 @@
-const mongoose = require('mongoose');
 const Card = require('../models/cards');
 const NotFound = require('../utils/notFoundErr'); // 404
 const ForbiddenError = require('../utils/forbiddenErr'); // 403
@@ -18,10 +17,9 @@ const postCards = (req, res, next) => {
     .then((cards) => res.status(201).send({ data: cards }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new IncorrectRequest('Переданы некорректные данные при создании карточки'));
-      } else {
-        next(err);
-      }
+        next(new IncorrectRequest({ message: 'Переданы некорректные данные при создании карточки' }));
+        return;
+      } next(err);
     });
 };
 
@@ -31,19 +29,21 @@ const deleteCards = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw new NotFound('Карточка с указанным _id не найдена.');
+        next(new NotFound('Карточка с указанным _id не найдена.'));
+        return;
       }
       if (card.owner.toString() !== userId.toString()) {
-        throw new ForbiddenError('У вас нет прав на удаление этой карточки');
+        next(new ForbiddenError('У вас нет прав на удаление этой карточки'));
+        return;
       }
-      return Card.findByIdAndRemove(req.params.cardId)
+      Card.findByIdAndRemove(req.params.cardId)
         .then(() => res.status(200).send({ data: card }))
         .catch(next);
     })
     .catch(next);
 };
 
-const postLikeCards = (req, res) => {
+const postLikeCards = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -51,21 +51,21 @@ const postLikeCards = (req, res) => {
   )
     .then((cards) => {
       if (!cards) {
-        res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        next(new NotFound('Передан несуществующий _id карточки.'));
         return;
       }
       res.status(200).send({ data: cards });
     })
 
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
+      if (err.name === 'ValidationError') {
+        next(new IncorrectRequest('Переданы некорректные данные для постановки/снятии лайка.'));
         return;
-      } res.status(500).send({ message: 'Ошибка по умолчанию' });
+      } next(err);
     });
 };
 
-const deleteLikeCards = (req, res) => {
+const deleteLikeCards = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -79,10 +79,10 @@ const deleteLikeCards = (req, res) => {
       res.status(200).send({ data: cards });
     })
     .catch((err) => {
-      if (err instanceof mongoose.Error.CastError) {
-        res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
+      if (err.name === 'ValidationError') {
+        next(new IncorrectRequest('Переданы некорректные данные для постановки/снятии лайка.'));
         return;
-      } res.status(500).send({ message: 'Ошибка по умолчанию' });
+      } next(err);
     });
 };
 
