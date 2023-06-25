@@ -38,9 +38,11 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.code === 11000) {
         next(new ConflictEmail(`Пользователь с такой электронной почтой ${email} уже зарегистрирован`));
+        return;
       }
       if (err.name === 'ValidationError') {
         next(new IncorrectRequest('Неверный запрос'));
+        return;
       }
       next(err);
     });
@@ -67,9 +69,9 @@ const getUsersId = (req, res, next) => {
   return User.findById(userId)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь с данным id не найдет');
-      }
-      return res.status(200).send(user);
+        next(new NotFound('Пользователь с данным id не найдет'));
+        return;
+      } res.status(200).send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
