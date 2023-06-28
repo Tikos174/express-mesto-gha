@@ -50,6 +50,23 @@ app.use(auth, (req, res, next) => {
 // eslint-disable-next-line no-undef
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Массив доменов, с которых разрешены кросс-доменные запросы
+const allowedCors = [
+  'https://mesto.yandex.students.nomoreparties.sbs/users',
+  'https://mesto.yandex.students.nomoreparties.sbs/cards',
+  'https://mesto.yandex.students.nomoreparties.sbs/signup',
+  'https://mesto.yandex.students.nomoreparties.sbs/signin',
+];
+
+app.post((req, res, next) => {
+  const { origin } = req.headers;
+  if (allowedCors.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', '*');
+  }
+
+  next();
+});
+
 app.use(errors());
 
 app.use(errorHandler);
