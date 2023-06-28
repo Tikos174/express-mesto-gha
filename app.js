@@ -47,8 +47,11 @@ app.use(auth, (req, res, next) => {
   next(new NotFound('Запрашиваемый ресурс не найден'));
 });
 
+// eslint-disable-next-line no-undef
+app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(errors());
 
 app.use(errorHandler);
 
-app.listen(3000);
+app.listen(80);
