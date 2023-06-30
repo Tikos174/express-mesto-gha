@@ -50,7 +50,7 @@ app.use(auth, (req, res, next) => {
 });
 
 // eslint-disable-next-line no-undef
-// app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(errors());
 
