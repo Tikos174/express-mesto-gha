@@ -9,6 +9,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const NotFound = require('./utils/notFoundErr');
 const errorHandler = require('./middlewares/errorHandler');
+const cors = require('./middlewares/cors');
 
 const avatar = /^https?:\/\/[www.]?[\w\-._~:/?#[\]@!$&'()*+,;=%]+\.[\w\-._~:/?#[\]@!$&'()*+,;=%]+#?$/;
 const password = /^[a-zA-z0-9]{8,}$/;
@@ -22,6 +23,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
