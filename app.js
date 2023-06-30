@@ -4,7 +4,7 @@ const cookieParser = require('cookie-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
 // const cors = require('cors');
-const path = require('path');
+// const path = require('path');
 const userRouter = require('./routes/users');
 const cardsRoutes = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -50,7 +50,7 @@ app.use(auth, (req, res, next) => {
   next(new NotFound('Запрашиваемый ресурс не найден'));
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(errors());
 
