@@ -50,9 +50,6 @@ app.post('/signup', celebrate({
 app.use('/users', auth, userRouter);
 app.use('/cards', auth, cardsRoutes);
 
-// app.use('/api', require('./routes/cards'));
-// app.use('/api', require('./routes/users'));
-
 app.use(auth, (req, res, next) => {
   next(new NotFound('Запрашиваемый ресурс не найден'));
 });
