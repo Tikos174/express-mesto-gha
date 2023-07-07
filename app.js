@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
-// const cors = require('cors');
+const cors = require('cors');
 const path = require('path');
 const userRouter = require('./routes/users');
 const cardsRoutes = require('./routes/cards');
@@ -24,36 +24,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// app.use(cors({
-//   credentials: true,
-//   methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
-//   allowedHeaders: ['Content-Type', 'Authorization'],
-//   preflightContinue: false,
-//   optionsSuccessStatus: 204,
-//   origin: ['http://api.mesto.yandex.students.nomoreparties.sbs', 'http://mesto.yandex.students.nomoreparties.sbs'],
-// }));
 
-// eslint-disable-next-line consistent-return
-app.use((req, res, next) => {
-  const allowedCors = [
-    'http://api.mesto.yandex.students.nomoreparties.sbs',
-    'http://mesto.yandex.students.nomoreparties.sbs',
-  ];
-  const DEFAULT_ALLOWED_METHODS = 'GET, HEAD, PUT, PATCH, POST, DELETE';
-  const { origin } = req.headers;
-  const requestHeaders = req.headers['access-control-request-headers'];
-  if (allowedCors.includes(origin)) {
-    res.header('Access-Control-Allow-Origin', '*');
-  }
-  // eslint-disable-next-line no-undef
-  if (method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', DEFAULT_ALLOWED_METHODS);
-    res.header('Access-Control-Allow-Headers', requestHeaders);
-    return res.end();
-  }
-
-  next();
-});
+app.use(cors({
+  credentials: true,
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
+  origin: ['http://localhost:3001', 'http://localhost:3000', 'http://api.mesto.yandex.students.nomoreparties.sbs', 'http://mesto.yandex.students.nomoreparties.sbs'],
+}));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
