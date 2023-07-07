@@ -5,7 +5,6 @@ const { celebrate, Joi } = require('celebrate');
 const { errors } = require('celebrate');
 const cors = require('cors');
 const path = require('path');
-const requestOptions = require('./middlewares/cors');
 const userRouter = require('./routes/users');
 const cardsRoutes = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -25,7 +24,14 @@ mongoose.connect('mongodb://127.0.0.1:27017/mestodb', {
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors(requestOptions));
+app.use(cors({
+  credentials: true,
+  methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204,
+  origin: ['http://api.mesto.yandex.students.nomoreparties.sbs', 'http://mesto.yandex.students.nomoreparties.sbs'],
+}));
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
