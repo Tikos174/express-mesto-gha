@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cors({
   credentials: true,
   methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
-  origin: ['http://localhost:3001', 'http://localhost:3000', 'http://api.mesto.yandex.students.nomoreparties.sbs', 'http://mesto.yandex.students.nomoreparties.sbs'],
+  origin: 'http://mesto.yandex.students.nomoreparties.sbs',
 }));
 
 app.post('/signin', celebrate({
