@@ -54,7 +54,7 @@ const postLikeCards = (req, res, next) => {
         next(new NotFound('Передан несуществующий _id карточки.'));
         return;
       }
-      res.status(200).send({ data: cards });
+      res.status(200).send(cards);
     })
 
     .catch((err) => {
@@ -76,7 +76,7 @@ const deleteLikeCards = (req, res, next) => {
         res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
         return;
       }
-      res.status(200).send({ data: cards });
+      res.status(200).send(cards);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

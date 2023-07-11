@@ -29,7 +29,14 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
   origin: 'https://mesto.yandex.students.nomoreparties.sbs',
+  // origin: 'http://localhost:3000',
 }));
+
+app.get('/crash-test', () => {
+  setTimeout(() => {
+    throw new Error('Сервер сейчас упадёт');
+  }, 0);
+});
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
@@ -62,3 +69,4 @@ app.use(errors());
 app.use(errorHandler);
 
 app.listen(3000);
+// app.listen(3002);
